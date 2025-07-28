@@ -30,9 +30,49 @@ private:
 
 public:
   Lexer(const std::string& input) : source(input) {}
-  Token nextToken();
+  Token nextToken() {
+    skipWhitespace();
+
+    int tokenline = line;
+    int tokencolumn = column;
+
+    if (isAtEnd()) {
+      return {TokenType::EOF_TOKEN, "", tokenline, tokencolumn};
+    }
+
+    start = current;
+    char c = advance();
+
+    if (std::isalpha(c)) {
+      while (std::isalnum(peek())) advance();
+      std::string text = source.substr(start, current - start);
+      if (text == "let") {
+        return {TokenType::LET, text, tokencolumn, tokencolumn};
+      }
+      return {TokenType::IDENTIFIER, text, tokenline, tokencolumn};
+    }
+
+    if (std::isdigit(c)) {
+      while (std::isdigit(peek())) advance();
+
+      std::string number = source.substr(start, current - start);
+      return {TokenType::NUMBER, number, tokenline, tokencolumn};
+    }
+
+    switch (c) {
+      case '=': return {TokenType::EQUAL, "=", tokenline, tokencolumn};
+      case ';': return {TokenType::SEMICOLON, ";", tokenline, tokencolumn};
+      default:
+                std::cerr << "Unexpected character: '" << c << "' at line " << line << ", column " << column << "\n";
+                return nextToken();  // skip it
+    }
+  }
 
 private:
+  bool isAtEnd() {
+    return current >= source.size();
+  }
+
   // moving forward one token
   char advance() {
     column++;
@@ -82,11 +122,19 @@ std::string readFile(const std::string& filename) {
   return content;
 }
 
-// tokenizing input
-// todo
-
-
-// running the lexer
 int main() {
+  std::string source = readFile("source.txt");
+
+  Lexer lexer(source);
+  Token token;
+
+  do {
+    token = lexer.nextToken();
+    std::cout << "Token: " << static_cast<int>(token.type)
+      << ", Lexeme: '" << token.lexeme
+      << "', Line: " << token.line
+      << ", Column: " << token.column << "\n";
+  } while (token.type != TokenType::EOF_TOKEN);
+
   return 0;
 }
