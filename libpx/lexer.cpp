@@ -8,7 +8,7 @@
 // defining token types and token
 
 enum class TokenType {
-  LET, IDENTIFIER, EQUAL, NUMBER, SEMICOLON, EOF_TOKEN
+  IDENTIFIER, EQUAL, NUMBER, SEMICOLON, EOF_TOKEN
 };
 
 struct Token {
@@ -46,15 +46,11 @@ public:
     if (std::isalpha(c)) {
       while (std::isalnum(peek())) advance();
       std::string text = source.substr(start, current - start);
-      if (text == "let") {
-        return {TokenType::LET, text, tokencolumn, tokencolumn};
-      }
       return {TokenType::IDENTIFIER, text, tokenline, tokencolumn};
     }
 
     if (std::isdigit(c)) {
       while (std::isdigit(peek())) advance();
-
       std::string number = source.substr(start, current - start);
       return {TokenType::NUMBER, number, tokenline, tokencolumn};
     }
