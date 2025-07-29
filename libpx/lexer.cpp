@@ -3,34 +3,13 @@
 #include <string>
 #include <cctype>
 #include <fstream>
+#include "lexer.hpp"
 
 
-// defining token types and token
-
-enum class TokenType {
-  IDENTIFIER, EQUAL, NUMBER, SEMICOLON, EOF_TOKEN
-};
-
-struct Token {
-  TokenType type;
-  std::string lexeme;
-  int line;
-  int column;
-};
-
+Lexer::Lexer(const std::string& input) : source(input), start(0), current(0), line(1), column(1) {}
 
 // lexer class skeleton
-class Lexer {
-private: 
-  std::string source;
-  size_t start = 0;
-  size_t current = 0;
-  int line = 1;
-  int column = 1;
-
-public:
-  Lexer(const std::string& input) : source(input) {}
-  Token nextToken() {
+Token Lexer::nextToken() {
     skipWhitespace();
 
     int tokenline = line;
@@ -62,21 +41,20 @@ public:
                 std::cerr << "Unexpected character: '" << c << "' at line " << line << ", column " << column << "\n";
                 return nextToken();  // skip it
     }
-  }
+}
 
-private:
-  bool isAtEnd() {
+  bool Lexer::isAtEnd() {
     return current >= source.size();
   }
 
   // moving forward one token
-  char advance() {
+  char Lexer::advance() {
     column++;
     return source[current++];
   }
 
   // look next token without moving
-  char peek() {
+  char Lexer::peek() {
     if (current >= source.size()) {
       return '\0';
     }
@@ -84,7 +62,7 @@ private:
   }
 
   // consume character if known
-  bool match(char expected) {
+  bool Lexer::match(char expected) {
     if (peek() != expected) {
       return false;
     }
@@ -94,7 +72,7 @@ private:
   }
 
   // skip whitespace
-  void skipWhitespace() { 
+  void Lexer::skipWhitespace() {
     while (true) {
       char c = peek();
       if (c == ' ' || c == '\r' || c == '\t') {
@@ -109,7 +87,6 @@ private:
     }
   }
 
-};
 
 // read string from file
 std::string readFile(const std::string& filename) {
@@ -118,8 +95,11 @@ std::string readFile(const std::string& filename) {
   return content;
 }
 
-int main() {
-  std::string source = readFile("source.txt");
+int lexer(const std::string& filename) {
+  std::string source = readFile(filename);
+  if (source.empty()) {
+	return 1;
+  }
 
   Lexer lexer(source);
   Token token;

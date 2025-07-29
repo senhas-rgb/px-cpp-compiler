@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
+#include "../libpx/lexer.hpp"
 
 void showHelp() {} // todo
-void parseFile(const std::string& filename) {} // todo
 
 void runPrompt() {
   std::string line;
@@ -18,14 +18,13 @@ void runPrompt() {
   }
 }
 
-
 int main (int argc, char *argv[]) {
   
   if (argc > 2) {
     std::cerr << "Usage: " << argv[0] << " <filename>" << std::endl;
     return 64;
   } else if (argc == 2) {
-    parseFile(std::string(argv[1]));
+    lexer(std::string(argv[1]));
   } else {
     runPrompt();
   }
